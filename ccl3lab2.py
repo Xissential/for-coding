@@ -1,0 +1,5 @@
+sentence = input ("Enter a Sentence with repeated words:")
+sentence1a = input ("Enter the word you want to replace:")
+sentence2a = input ("Enter the replacement word:") 
+newsentence = sentence.replace(sentence1a, sentence2a)
+print("Updated Sentence: ", newsentence)
