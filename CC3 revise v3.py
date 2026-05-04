@@ -1,31 +1,23 @@
-import pandas as pd   # Pandas library usage
-
+import pandas as pd   # Pandas library Integrated
 class MeanMedianModeOfGroupedDataCalculator:  # Base class
     def __init__(self):
-        self.results = []   # store results per run
         self.sequence = 1   # run counter
         self.data = []
         self.n = 0
 
     def show_kwargs(self, **kwargs):  # Arbitrary keyword arguments (**kwargs)
-        print("\nShowing keyword arguments (kwargs):")
         for key, value in kwargs.items():
-            print(f"  {key}: {value}")
-
-    def factorial(self, n):   # Recursion example (factorial)
-        if n == 0 or n == 1:
-            return 1
-        return n * self.factorial(n - 1)
-
+            print(f"{key}: {value}")
 class ExtendedCalculator(MeanMedianModeOfGroupedDataCalculator): # Inheritance + Method Overriding
-#Mean
-    def calculate_mean(self):  # Override method
-        print("\n[Overridden] Using pandas for mean calculation...")
+
+    # Mean
+    def calculate_mean(self): 
         df = pd.DataFrame(self.data, columns=["Lower", "Upper", "Freq"])
         df["Mid"] = (df["Lower"] + df["Upper"]) / 2
         mean = (df["Mid"] * df["Freq"]).sum() / df["Freq"].sum()
         return mean
-#Median 
+    
+    # Median 
     def calculate_median(self):  
         cf = [0]
         running = 0
@@ -46,7 +38,8 @@ class ExtendedCalculator(MeanMedianModeOfGroupedDataCalculator): # Inheritance +
         h = self.data[index][1] - self.data[index][0]
 
         return L + ((half - cf_before) / f) * h
-#Mode
+    
+    # Mode
     def calculate_mode(self):
         highest = 0
         pos = 0
@@ -64,20 +57,25 @@ class ExtendedCalculator(MeanMedianModeOfGroupedDataCalculator): # Inheritance +
         denom = (f1 - f0) + (f1 - f2)
         if denom == 0:
             raise ZeroDivisionError
-
         return L + ((f1 - f0) / denom) * h
-#Rounding
+
+    # Rounding
     def format_value(self, value):
         return int(value) if float(value).is_integer() else round(value, 2)
 
     def sort_data(self):  # Sort using list
         self.data = sorted(self.data, key=lambda x: x[0])
 
-    def show_first_class(self): # Tuple slicing
+    def show_first_class(self):  # Tuple slicing with formatting
         if len(self.data) > 0:
             first = self.data[0]
-            print("\nFirst Class (tuple):", first)
-            print("Lower & Upper only (slice):", first[0:2])
+            first_display = tuple(int(x) if isinstance(x, float) and x.is_integer() else x for x in first)
+            print("\nFirst Class:", first_display)
+
+            if len(self.data) > 1:
+                second = self.data[1]
+                second_display = tuple(int(x) if isinstance(x, float) and x.is_integer() else x for x in second)
+                print("Second Class:", second_display)
 
     def validate_intervals(self): # Validate intervals
         for i in range(1, self.n):
@@ -85,10 +83,12 @@ class ExtendedCalculator(MeanMedianModeOfGroupedDataCalculator): # Inheritance +
                 print("\nError: Class intervals overlap.")
                 raise ValueError
 
-    def get_class_dict(self):  # Dictionary (class mapping)
+    def get_class_dict(self):  # Dictionary (class mapping with formatting)
         class_dict = {}
         for i, (low, high, f) in enumerate(self.data):
-            class_dict[f"Class {i+1}"] = {"Lower": low, "Upper": high, "Freq": f}
+            low_display = int(low) if isinstance(low, float) and low.is_integer() else low
+            high_display = int(high) if isinstance(high, float) and high.is_integer() else high
+            class_dict[f"Class {i+1}"] = {"Lower": low_display, "Upper": high_display, "Freq": f}
         return class_dict
 
     def total_frequency(self, *args): # Arbitrary arguments (*args)
@@ -96,15 +96,13 @@ class ExtendedCalculator(MeanMedianModeOfGroupedDataCalculator): # Inheritance +
 
 # MAIN PROGRAM
 results = []  # store results per run
-sequence = 1  # run counter
 calc = ExtendedCalculator()   # Using subclass with overriding
-
 while True:
     try: 
         print("\n================================================")
         print("   Mean, Median, Mode of Grouped Data Calculator")
         print("================================================")
-    
+        
         n = int(input("\nHow Many classes? "))
         if n <= 0:
             print("Error: Number of classes must be a positive integer.")
@@ -132,23 +130,26 @@ while True:
         # SORTING CLASSES BY LOWER BOUND
         calc.sort_data()
 
+    #OUTPUT
+        print("\n=====================================")
+        calc.show_kwargs(Title="Mean, Median, Mode Calculator", Subject="CC3", Year=2026)   # kwargs
+        print("=====================================")
+
         print("\nSorted Class Intervals:")
         print("----------------------------")
-        print(" Lower   Upper   Frequency")
+        print(f"{'Lower':^10}{'Upper':^10}{'Frequency':^10}")  
         for low, high, f in calc.data:
-            print(" ", low, " ", high, " ", f)
+            low_display = int(low) if low.is_integer() else low
+            high_display = int(high) if high.is_integer() else high
+            print(f"{low_display:^10}{high_display:^10}{f:^10}")        
         print("----------------------------")
 
         # Validations
         calc.validate_intervals()
-
         # Demonstrations
         calc.show_first_class()            # tuple + slicing
         class_dict = calc.get_class_dict() # dictionary
-        print("\nClass Dictionary:", class_dict)
-
-        # kwargs demo
-        calc.show_kwargs(Author="Alexis", Subject="CC3", Year=2026)
+        print("Assigned Classes:", class_dict)
 
         # Calculations
         mean = calc.format_value(calc.calculate_mean())
@@ -156,13 +157,15 @@ while True:
         mode = calc.format_value(calc.calculate_mode())
 
         print("\nRESULTS:")
+        print("----------------------------")
         print("Mean:", mean)
         print("Median:", median)
         print("Mode:", mode)
-    
+        print("----------------------------")
+
         # SAVE RESULTS
-        results.append({"run": sequence,"mean": mean,"median": median,"mode": mode,"classes": calc.data[:]})
-        sequence += 1
+        results.append({"run": calc.sequence,"mean": mean,"median": median,"mode": mode,"classes": calc.data[:]})
+        calc.sequence += 1
     
     except ValueError:
         print("\nPlease enter a valid numeric input")
