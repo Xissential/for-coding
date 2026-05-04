@@ -1,10 +1,12 @@
 import pandas as pd   # Pandas library usage
-class MeanMedianModeOfGroupedDataCalculator:  # Base class
 
+class MeanMedianModeOfGroupedDataCalculator:  # Base class
     def __init__(self):
         self.results = []   # store results per run
         self.sequence = 1   # run counter
-        
+        self.data = []
+        self.n = 0
+
     def show_kwargs(self, **kwargs):  # Arbitrary keyword arguments (**kwargs)
         print("\nShowing keyword arguments (kwargs):")
         for key, value in kwargs.items():
@@ -14,95 +16,25 @@ class MeanMedianModeOfGroupedDataCalculator:  # Base class
         if n == 0 or n == 1:
             return 1
         return n * self.factorial(n - 1)
-class ExtendedCalculator(MeanMedianModeOfGroupedDataCalculator): # Inheritance + Method Overriding
 
+class ExtendedCalculator(MeanMedianModeOfGroupedDataCalculator): # Inheritance + Method Overriding
+#Mean
     def calculate_mean(self):  # Override method
         print("\n[Overridden] Using pandas for mean calculation...")
         df = pd.DataFrame(self.data, columns=["Lower", "Upper", "Freq"])
         df["Mid"] = (df["Lower"] + df["Upper"]) / 2
         mean = (df["Mid"] * df["Freq"]).sum() / df["Freq"].sum()
         return mean
-    
-#  MAIN PROGRAM
-results = []  # dito naka store yung results per run
-sequence = 1  # run counter
-calc = ExtendedCalculator()   # Using subclass with overriding
-while True:
-    try: 
-        print("\n================================================")
-        print("   Mean, Median, Mode of Group Data Calculator")
-        print("================================================")
-    
-        n = int(input("\nHow Many classes? "))
-        if n <= 0:
-            print("Error: Number of classes must be a positive integer.")
-            raise ValueError
-
-        self.data = []
-
-# Input Section
-        for i in range(self.n): 
-            print("\nClass", str(i + 1))
-
-            low = float(input("  Lower: "))
-            high = float(input("  Upper: "))
-            f = int(input("  Frequency: "))
-
-            if high <= low:
-                print("Error: Upper class must be greater than lower class.")
-                raise ValueError
-            
-            if f < 0:
-                print("Error: Frequency cannot be negative.")
-                raise ValueError
-            
-# List usage
-            data = data + [[low, high, f]]  
-
-# SORTING CLASSES BY LOWER BOUND
-        for a in range(len(data)): 
-            for b in range(len(data) - 1):
-                if data[b][0] > data[b + 1][0]:
-                    temp = data[b]
-                    data[b] = data[b + 1]
-                    data[b + 1] = temp
-
-        print("\nSorted Class Intervals:")
-        print("----------------------------")
-        print(" Lower   Upper   Frequency")
-
-        for low, high, f in data:
-            print(" ", low, " ", high, " ", f)
-        print("----------------------------")
-
- # Mean
-        total_fx = 0
-    def calculate_mean(self): 
-        freqs = []
-
-        for low, high, f in self.data:
-            mid = (low + high) / 2
-            total_fx += mid * f
-            freqs.append(f)
-
-        total_f = self.total_frequency(*freqs)  # using *args
-
-        if total_f == 0:
-            raise ZeroDivisionError
-
-        return total_fx / total_f
-    
-   # Median
-        cf = [0]
+#Median 
     def calculate_median(self):  
+        cf = [0]
         running = 0
-
         for _, _, f in self.data:
             running += f
             cf.append(running)
 
         half = running / 2
-
+        index = 0
         for i in range(self.n):
             if cf[i] >= half:
                 index = i
@@ -114,13 +46,10 @@ while True:
         h = self.data[index][1] - self.data[index][0]
 
         return L + ((half - cf_before) / f) * h
-            self.data.append((low, high, f))   # store as tuple
-        
-#  Mode
+#Mode
     def calculate_mode(self):
         highest = 0
         pos = 0
-
         for i in range(self.n):
             if self.data[i][2] > highest:
                 highest = self.data[i][2]
@@ -137,11 +66,11 @@ while True:
             raise ZeroDivisionError
 
         return L + ((f1 - f0) / denom) * h
-
+#Rounding
     def format_value(self, value):
-        return int(value) if value.is_integer() else round(value, 2)
-    
-    def sort_data(self):  #  Sort using list
+        return int(value) if float(value).is_integer() else round(value, 2)
+
+    def sort_data(self):  # Sort using list
         self.data = sorted(self.data, key=lambda x: x[0])
 
     def show_first_class(self): # Tuple slicing
@@ -155,26 +84,66 @@ while True:
             if self.data[i][0] < self.data[i - 1][1]:
                 print("\nError: Class intervals overlap.")
                 raise ValueError
-            
+
     def get_class_dict(self):  # Dictionary (class mapping)
         class_dict = {}
         for i, (low, high, f) in enumerate(self.data):
             class_dict[f"Class {i+1}"] = {"Lower": low, "Upper": high, "Freq": f}
         return class_dict
 
-    def total_frequency(self, *args): # rbitrary arguments (*args)
+    def total_frequency(self, *args): # Arbitrary arguments (*args)
         return sum(args)
 
-    calc = ExtendedCalculator()   # Using subclass with overriding
+# MAIN PROGRAM
+results = []  # store results per run
+sequence = 1  # run counter
+calc = ExtendedCalculator()   # Using subclass with overriding
 
-        calc.input_data()
+while True:
+    try: 
+        print("\n================================================")
+        print("   Mean, Median, Mode of Grouped Data Calculator")
+        print("================================================")
+    
+        n = int(input("\nHow Many classes? "))
+        if n <= 0:
+            print("Error: Number of classes must be a positive integer.")
+            raise ValueError
+
+        calc.n = n
+        calc.data = []
+
+        # Input Section
+        for i in range(calc.n): 
+            print("\nClass", str(i + 1))
+            low = float(input("  Lower: "))
+            high = float(input("  Upper: "))
+            f = int(input("  Frequency: "))
+
+            if high <= low:
+                print("Error: Upper class must be greater than lower class.")
+                raise ValueError
+            if f < 0:
+                print("Error: Frequency cannot be negative.")
+                raise ValueError
+
+            calc.data.append((low, high, f))   # store as tuple
+
+        # SORTING CLASSES BY LOWER BOUND
         calc.sort_data()
+
+        print("\nSorted Class Intervals:")
+        print("----------------------------")
+        print(" Lower   Upper   Frequency")
+        for low, high, f in calc.data:
+            print(" ", low, " ", high, " ", f)
+        print("----------------------------")
+
+        # Validations
         calc.validate_intervals()
 
         # Demonstrations
         calc.show_first_class()            # tuple + slicing
-        calc.get_unique_frequencies()      # set
-
         class_dict = calc.get_class_dict() # dictionary
         print("\nClass Dictionary:", class_dict)
 
@@ -191,8 +160,8 @@ while True:
         print("Median:", median)
         print("Mode:", mode)
     
-    # SAVE RESULTS
-        results = results + [{"run": sequence,"mean": mean,"median": median,"mode": mode,"classes": data[:]}]
+        # SAVE RESULTS
+        results.append({"run": sequence,"mean": mean,"median": median,"mode": mode,"classes": calc.data[:]})
         sequence += 1
     
     except ValueError:
@@ -202,6 +171,7 @@ while True:
     except Exception as e:
         print("\nUnexpected Error:", e)
 
+    choice = input("\nDo you want to run again? (yes/no): ").strip().lower()
     if choice not in ("yes", "y"):
         if len(results) == 0:
             print("\nProgram Ended. Goodbye!")
